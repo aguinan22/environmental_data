@@ -1,0 +1,33 @@
+---
+title: "aaaaaaaa"
+author: "Abigail Guinan"
+date: "10/20/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r load penguins}
+require(palmerpenguins)
+```
+
+# Different Penguin Plots {.tabset .tabset-pills}
+
+The following tabs contain different plot types
+
+## Histogram
+
+```{r flipper length histogram, fig.asp = 1/1.5}
+hist(penguins$flipper_length_mm)
+#LOOK AT THIS [GRAPH]
+```
+
+## Another Histogram (Bill Length)
+
+``` {r bill length histogram, echo = FALSE}
+hist(penguins$bill_length_mm)
+```
