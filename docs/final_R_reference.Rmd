@@ -94,7 +94,6 @@ lengthtest <- c(5:678)
 ## Calculating the length:
 length(lengthtest)
 
-## should probably show this can be used for characters and matrices n such i dunno man
 
 ```
 
