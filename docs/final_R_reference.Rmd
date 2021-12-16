@@ -1,0 +1,411 @@
+---
+title: 'Final Project: R Reference'
+author: "Abigail Guinan"
+date: "12/2/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# R Reference Guide {.tabset .tabset-pills}
+
+
+## Loading Data and Packages
+
+### library() and require()
+
+The library() and require() functions are both used to import packages into R to be used in your coding. While these functions are used in the same way in everyday work, they differ because library() will return in error if the package cannot be found, terminating the code, while require() is generally used inside functions, and will return a FALSE value and continue attempting to run the function if the package cannot be found.
+
+The below example will use library() and require() to load the here and palmerpenguins packages.
+
+```{r}
+library(palmerpenguins)
+require(here)
+
+## Showing that loading palmerpenguins worked:
+head(penguins)
+## (The significance of the here() function will be shown in the next code chunk.)
+```
+
+### Importing data: here() and read.csv()
+The here() function is especially useful because it sets your working directory, the place where R will look for files to open, to the project folder you are currently working in. This function is not a part of base R, so it will need to be explicitly required in the code in order for it to work.
+
+The read.csv() function, as the name suggests, reads csv files into R as a data.frame. This can be useful when you have files saved to your computer that you want to perform operations on in R.
+
+This example will use the ginkgo csv to show how here() can be imported and read.csv can be used to make a csv file saved on our computer accessible for use in R.
+
+```{r}
+require(here)
+
+## The here() function must be used inside the read.csv() function to make sure that R starts looking for our data file in the project folder. The word "data" is added to ensure that R opens the data subfolder rather than searching the main project folder.
+
+## The csv file must be stored to a variable for R to keep the information. Otherwise, the contents of the csv will be printed, but they will not be saved.
+
+ginkgo <- read.csv(here("data", "ginkgo_data_2021.csv"))
+
+## We can verify that the ginkgo variable is a data.frame by using the class() function.
+
+class(ginkgo)
+```
+
+
+## Data Structures
+
+### c()
+
+The function c() combines or concatenates its arguments into a vector (a 1-dimensional data structure consisting of 1 or more elements).
+
+* All of the elements must be of the same type.
+    * I can’t combine character and numeric types in the same call to c()
+
+Here’s two examples using numeric and character data types:
+```{r}
+## Create a vector of numbers:
+num_vec  = c(1, 4, 8, 9, 13)
+
+## Create a vector of characters:
+char_vec = c("a", "fish", "data is cool")
+```
+
+I can show the contents of a vector by typing the name of the vector, or using the print() function.
+
+```{r}
+## Typing the name of the vector into the console prints the contents
+num_vec
+```
+
+
+```{r}
+## The print() function accomplishes the same task:
+print(char_vec)
+```
+
+### length()
+
+The length() function is used to determine how long an R object is (or how many items an R object contains.) The example below demonstrates how length can be used to show how many items are in a vector.
+
+```{r}
+## Creating a vector giving all of the integers from 5 to 678:
+
+lengthtest <- c(5:678)
+
+## Calculating the length:
+length(lengthtest)
+
+## should probably show this can be used for characters and matrices n such i dunno man
+
+```
+
+### matrix()
+
+The matrix() function creates an array of values with a set number of rows and columns using the nrow and ncol arguments respectively.The byrow argument can be true or false determines whether the matrix is filled by rows (byrow = TRUE) or columns (byrow = FALSE - this is the default).
+* Matrices can only contain one class of values. For example, a matrix could contain all characters and all numbers, but not numbers and characters.
+
+The below example will demonstrate how to create a matrix of numeric values. In this example, the matrix will consist of a repeating vector containing the integers 1 through 4. I will show what happens when the byrow argument is set to TRUE and FALSE.
+
+```{r}
+#The matrix will not be populated by values unless the data argument is filled. The data argument is set to c(1:4) to create the repeating vector of numbers that will fill the matrix.
+testmatrix <- matrix(data = c(1:4), nrow = 3, ncol = 4, byrow = TRUE)
+testmatrix
+
+testmatrix2 <- matrix(data = c(1:4), nrow = 3, ncol = 4, byrow = FALSE)
+testmatrix2
+```
+
+### data.frame()
+
+The data.frame() function is similar to the matrix() function because it can contain a two-dimensional array of values. However, unlike the matrix() function, it can contain a combination of class types, such as numbers and characters. The only requirement is that every column must be the same class type - a column containing numbers cannot also contain characters (with the exception of the column name). The below example will show how to make a data frame that combines numbers and characters.
+
+```{r}
+#First, we will create a set of two vectors to populate the data frame.
+v1 <- c(1:10)
+v2 <- c(rep("aaaaa", times = 10))
+
+#Next, we will combine the two vectors into a data frame by putting these vectors in the data argument of the data.frame() function.
+dataframe <- data.frame(data = v1, v2)
+dataframe
+```
+
+### Measuring dimensions: nrow(), ncol(), and dim()
+
+The nrow(), ncol(), and dim() functions are used to measure the dimensions of a data frame. These three functions output the number of rows, number of columns, and overall dimensions respectively.The dim() function will output the number of rows followed by the number of columns. The example below will demonstrate these functions with the ginkgo data set.
+
+```{r}
+
+## We already imported the ginkgo data set in the "Loading Data and Packages" section, so we don't need to import it again.
+
+## Find the number of rows:
+nrow(ginkgo)
+
+## The number of columns:
+ncol(ginkgo)
+
+## The dimensions:
+dim(ginkgo)
+```
+
+
+## Subsetting
+
+### Subsetting by name ($) and position ([])
+We can subset by name using the $ symbol, or by position using the square brackets: []. In the below examples, we will accomplish the following tasks using the ginkgo dataset:
+* Select one of the columns by name in the ginkgo data
+* Select the first row of the ginkgo data
+* Select the element in row 2, column 3
+* Select the 3rd column of the ginkgo data
+
+```{r}
+## To select one of the ginkgo columns by name, we need to know what the names of the columns are first. Let's use the head() function to find out what the columns are called.
+head(ginkgo)
+
+## One of the columns is called seeds_present. We can subset that row specifically using the $ symbol.
+
+ginkgo$seeds_present
+
+## Now we can go through setting by position. The square brackets can accept one number for the row position, and one number for the column position, separated by a comma. If either position is left blank, R will subset all values for that row or column. For example, to get all columns in row 1, we will leave the column section blank.
+
+ginkgo[1, ]
+
+## Now we will select the element in row 2, column 3.
+
+ginkgo[2, 3]
+
+## Lastly, we will select the entire third column of the ginkgo data. This is similar to selecting the entire first row, except the row value is left blank instead of the column value.
+
+ginkgo[ , 3]
+
+```
+
+
+### The subset() function
+
+We can also subset based on a set of predetermined conditions using the subset() function. In the below example, we will use the subset() function to isolate the data about Adelie penguins from the palmerpenguins data set.
+
+```{r}
+## To work with this data set, we need to establish that we have it available first.
+
+library(palmerpenguins)
+
+## Now we can use the subset() function on the penguins data set to get all rows for which the penguin species is Adelie.
+
+subset(penguins, penguins$species == "Adelie")
+```
+
+
+## Numerical Data Exploration
+
+For the next three functions, we will use the palmerpenguins data set to demonstrate how the functions work. We already imported these data in the "Subsetting" section, so we do not need to import it again. For your code to run, you may need to run the following line to have the penguin data accessible:
+```{r}
+library(palmerpenguins)
+```
+
+### summary()
+
+The summary() function will provide different information depending on the values supplied to the function. It can be used to provide an understanding of the distribution of a data set, such as the minimum, maximum, and mean, as shown below:
+
+```{r}
+summary(penguins$bill_length_mm)
+```
+
+summary() can also be used to create a coefficient table for a linear model, which can tell us how two variables are related, and whether this relationship is significant. The following example will use the lm() function to create a linear model relating bill length (mm) and body mass (g) for the penguins data set, and the summary() function will tell us about the relationship and whether it is significant.
+
+```{r}
+linearmodel <- lm(penguins$body_mass_g ~ penguins$bill_length_mm)
+
+summary(linearmodel)
+```
+
+In the Estimate column, we can see the intercept and slope for the linear model. The Pr(>|t|) column tells us how likely it is that we would observe this relationship by chance. In this case, it looks like there is a significant positive relationship between bill length and body mass.
+
+### mean()
+
+The mean() function calculates the arithmetic mean for a set of numeric values. The below example will calculate the mean body mass for the entire penguins data set. This function will not work if NA values are present, so we will have to set the na.rm argument to TRUE for this function to work.
+
+```{r}
+mean(penguins$body_mass_g, na.rm = TRUE)
+```
+
+### sd()
+
+The sd() function calculates the standard deviation for a set of numeric values. Much like the mean() function, sd() will not work if NA values are present, so we will set na.rm to TRUE. This example will calculate the standard deviation for bill depth (mm) for the entire penguins data set.
+
+```{r}
+sd(penguins$bill_depth_mm, na.rm = TRUE)
+```
+
+
+
+## Graphical Data Exploration
+
+### plot()
+
+The plot() function will help us to gain visual intuition about our data by showing how our data is distributed in a 2D plane. Several arguments are available to customize the plot output. In this example, we will use the following arguments to plot and customize the max leaf depth and max leaf width in the ginkgo data set:
+
+* col: Specifies the color of the plot points. Can be entered as a number or string.
+
+* pch: Customizes the shapes of the points. The point types are assigned to numbers, and different point types can be explored by entering different numbers for this argument.
+
+* main: The title of the plot, entered as a string in quotation marks.
+
+* xlab: The label for the x-axis, entered as a string in quotation marks.
+
+* ylab: The label for the y-axis, entered as a string in quotation marks.
+
+* xlim: The range of x-values that will be displayed, enter as a vector c(). Enter the minimum followed by the maximum, separated by a comma.
+
+* ylim: The range of y-values that will be displayed, enter as a vector c(). Enter the minimum followed by the maximum, separated by a comma.
+
+```{r}
+## We can make an informed decision on what the limits of our plot should be when we know the ranges of the x and y values. Let's do that first with the range() function.
+range(ginkgo$max_depth)
+## The upper limit on our x-axis will be 145.
+range(ginkgo$max_width)
+## The upper limit on our y-axis will be 130.
+
+plot(ginkgo$max_depth, #The x-value
+     ginkgo$max_width, #The y-value
+     col = "steelblue", #The point color
+     pch = 1, #The point type
+     main = "Ginkgo leaf depth vs. leaf width", #The title
+     xlab = "Ginkgo leaf depth", #x-axis label
+     ylab = "Ginkgo leaf width", #y-axis label
+     xlim = c(0, 145), #The x-value range
+     ylim = c(0, 130) #The y-value range
+     )
+```
+
+### hist()
+
+The hist() function creates a histogram of a set of numeric data. The x-axis will represent the value of the data we choose, while the y-axis will represent the frequency of that data value in our data set. We will demonstrate this with the penguin data set by creating a histogram for flipper lengths, and use the breaks argument to decide how many bars we want to condense our data into.
+
+```{r}
+## The breaks argument can be filled by a number or a vector c(). If we fill the breaks argument with a number, R will attempt to create a histogram using the number of bars specified in breaks, provided that it can split the data into evenly spaced bars.
+
+## I want to have a new bar every time the flipper length goes up by 10 mm, so I need to calculate the range first.
+range(penguins$flipper_length_mm, na.rm = TRUE)
+
+## It looks like we have a flipper length range of about 60 mm. To have each bar represent 10 cm, we should make the number of breaks 6.
+hist(penguins$flipper_length_mm, breaks = 6)
+
+## There was a small amount of data that exceeded 230, so R had to split the data into seven bars. However, it looks like each bar contains about 10 cm of flipper length range.
+
+## Alternatively, we can give the exact values where we want the breaks to happen by specifying the breaks argument as a vector. Here is how we can make the same histogram above Using a vector.
+
+## (Warning: Your vector will need to contain the entire data range for this to work. R will give an error message if any of the data is outside the range in the breaks argument.)
+
+hist(penguins$flipper_length_mm, breaks = c(170, 180, 190, 200, 210, 220, 230, 240))
+```
+
+### boxplot()
+
+The boxplot() function creates a box-and-whisker plot showing how a set of numeric data is distributed. The inner boxes represent the second and third quartiles, while the outer whiskers represent the first and forth quartiles. Outliers are represented as points.
+
+The first example will show how to code a boxplot of petiole lengths using the ginkgo data.
+
+```{r}
+boxplot(ginkgo$petiole_length)
+```
+
+In the next example, we will create a conditional boxplot using the ~ symbol. The ~ symbol splits the data on the left side of the ~ based on the value given on the right side. In this way, the ~ can be thought of as R code for "with respect to".
+
+This boxplot will output different boxplots for petiole_length depending on the value of the seeds_present column.
+
+```{r}
+boxplot(petiole_length ~ seeds_present, data = ginkgo)
+```
+
+### par()
+
+The par() function is used to arrange plots based on the criteria given in the mfrow argument. The mfrow argument accepts a vector giving the number of rows and columns we want in the arrangement. The below example will place four histograms in a 2 x 2 arrangement.
+
+```{r}
+par(mfrow = c(2,2))
+
+hist(penguins$body_mass_g, main = "Penguin body mass (g)", xlab = "Body mass (g)")
+hist(penguins$flipper_length_mm, main = "Penguin flipper length (mm)", xlab = "Flipper length (mm)")
+hist(ginkgo$max_depth, main = "Ginkgo leaf max depth (mm)", xlab = "Max depth (mm)")
+hist(ginkgo$max_width, main = "Ginkgo leaf max width (mm)", xlab = "Max width (mm)")
+
+
+## R will continue outputting our plots in a 2 x 2 arrangement unless we tell it to stop. The par() function can be turned off by typing par(mfrow = c(1,1)).
+```
+
+
+## Distribution Functions
+
+### dnorm()
+
+dnorm() is used to find the probability of obtaining a value (or set of values) from a normal distribution. By default, this function will assume a mean value of 0 and a standard deviation of 1. We can change these values by modifying the mean and sd arguments. This function is best used for discrete values, like count data. In the event that the data is continuous, the probability of obtaining any exact value will be near zero.
+
+This example will give the probability density of getting the integer values -2 through 2 on a probability distribution with a mean of 1 and a standard deviation of 3.
+
+```{r}
+dnorm(c(-2:2), mean = 1, sd = 3)
+```
+
+### pnorm()
+
+pnorm() is used to represent the cumulative distribution function of a value in a normal distribution - in other words, pnorm() will output the probability of getting the target value or less from a normally distributed population. To show how this works, I will run pnorm() twice with a low value and a high value using the default values for mean and standard deviation.
+
+```{r}
+
+## This value is extremely low for a normal distribution, so the cumulative probability should be near zero.
+pnorm(-10)
+
+## This value is extremely high for a normal distribution, so the probability of obtaining this exact value is also low. However, the probability of obtaining this value or less is much higher. 
+pnorm(10)
+```
+
+
+### qnorm()
+
+qnorm() represents the inverse of the cumulative distribution - it represents the quantile distribution function. Quantiles exist on a scale of 0-1, with 0 being the lowest value (the 0th percentile) and 1 being the highest value (the 100th percentile). When we input the percentile value into the qnorm() function, we get the value that meets that percentile on the normal distribution.
+
+```{r}
+##For our example, we will use a hypothetical IQ test where the scores are normally distributed and the mean is 100 and the standard deviation is 10. What is the IQ of someone in the 5th percentile?
+
+qnorm(0.05, mean = 100, sd = 10)
+
+## This example shows that someone with a low percentile value for IQ will have a lower IQ, in this case about 83. We can repeat this for someone in the 95th percentile.
+
+qnorm(0.95, mean = 100, sd = 10)
+```
+
+
+### dbinom()
+
+dbinom() calculates the probability of a given number of successes in a binomial distribution when we give the number of trials (represented by the size argument) and the probability of success for an individual trial (represented by the prob argument)
+
+In the below example, we will calculate the probability of having 20 successes out of 100 trials when the probability of success is 0.3.
+
+```{r}
+dbinom(20, size = 100, prob = 0.3)
+```
+
+### pbinom()
+
+pbinom() calculates the probability of observing a given number of successes or less in a binomial distribution when we give the number of trials (size) and the probability of success (prob).
+
+This example will be similar to the one above, but it will give the probability of observing 20 or fewer successes when the number of trials is 100 and the probability of success is 0.3.
+
+```{r}
+pbinom(20, size = 100, prob = 0.3)
+```
+
+
+### qbinom()
+
+qbinom() calculates the probability of observing a given number of successes after inputting a quantile value between 0 and 1. For example, we could get the 100th percentile of successes using a binomial function with a probability of success of 0.3. It is the inverse of pbinom() - given the probability of observing a given value or less, what is the value in question?
+
+```{r}
+qbinom(1, size = 100, prob = 0.3)
+## This makes sense - at the highest percentile, we expect to get the maximum number of successes.
+
+## What about the 50th percentile?
+qbinom(0.5, size = 100, prob = 0.3)
+
+## This also makes sense - given that our probability of success is 0.3, getting 30 successes should also be the most likely outcome. About half of our trials will have fewer successes, while the other half will have more.
+```
+
